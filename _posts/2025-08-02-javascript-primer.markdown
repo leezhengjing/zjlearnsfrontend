@@ -442,6 +442,338 @@ if (
 >
 > — *"Getting Started with Javascript, v2"*, Kyle Simpson
 
+## Scope
+### Scope
+What is scope? It means where to look for things, be it variables, function definitions, you name it. If you've gone through your first intro to programming class, CS1101S flashback in NUS, you would know this very well from the programming quizzes they made you do in source.
+
+But each programming language handles scope slightly differently, and I was shocked at how JS does it. Let's take a look below:
+```javascript
+var teacher = "Kyle";
+
+function otherClass() {
+	teacher = "Suzy";
+	topic = "React";
+	console.log("Welcome!");
+}
+
+otherClass(); // Welcome!
+
+teacher; // ??
+topic; // ??
+```
+What do you think the return result is?
+
+The answer is, teacher and topic returns "Suzy" and "React"! This might come as a shock for you, because for me, I thought it would be "Kyle" and undefined. This doesn't make sense right? the function scope should be like a "local" scope, while the global scope where teacher has been declared as "Kyle" should remain untouched by the function call. But not in JS, apparently since it cant be declared in the scope of otherClass, it gets bumped up to the global scope. Crazy!
+
+### Undefined vs Undeclared
+A state of a variable being undeclared is distinctly different from something that is undefined. Something that is undefined is a variable that has been declared but doesn't have a value. A variable that has never been declared, the javascript engine has no idea where it is.
+
+### Function Expressions
+What is a function expression?
+
+It is a function that is assigned as a value. This allows functions to be assigned to variables, passed as arguments or even returned from other functions. This is a first-class value in a programming language.
+
+```javascript
+// Anonymous function expression
+var clickHandler = function() {
+	// ..
+}
+
+// Named function expression
+var keyHandler = function keyHandler() {
+	// ..
+}
+
+// Typically, we see anonymous function expressions more in the form of arrow functions!
+var ids = people.map(person => person.id);
+
+var ids = people.map(function getId(person){
+	return person.id;
+});
+
+getPerson()
+.then(person => getData(person.id))
+.then(renderData);
+
+getPerson()
+.then(function getDataFrom(person){
+	return getData(person.id);
+})
+.then(renderData);
+```
+
+### Function Scoping with IIFEs
+Immediately invoked function expressions. The main end result of running a IIFE is to get a new block of scope, aka a function scope. Take a look at the example below:
+```javascript
+var teacher = "Kyle";
+
+( function anotherTeacher() {
+	var teacher = "Suzy";
+	console.log(teacher); // Suzy
+} )(); // immediately executed!
+
+console.log(teacher) // Kyle
+```
+
+### Block Scoping with `let`
+This is probably the most common way of creating scope that I see in my day to day work. The `let` keyword. This enables block scoping!
+```javascript
+var teacher = "Kyle";
+
+{
+	let teacher = "Suzy";
+	console.log(teacher); // Suzy
+}
+
+console.log(teacher); // Kyle
+```
+Another example:
+```javascript
+function diff(x, y) {
+	if (x > y) {
+		let tmp = x; // tmp is only available in this curly block!
+		x =  y; // x doesnt exist in this block, goes up one scope to find the x
+		y = tmp; // same
+	}
+	return y - x;
+	
+
+}
+```
+
+```javascript
+function repeat(fn, n) {
+	var result; // still use var here, stylistic choice when we dont need block scope
+
+	for (let i = 0; i < n; i++) {
+		result = fn(result, i);
+	}
+
+	return result;
+}
+
+```
+
+```javascript
+function formatStr(str) {
+	{ let prefix, rest;
+		prefix = str.slice(0, 3);
+		rest = str.slice(3);
+		str = prefix.toUpperCase() + rest;
+	}
+	
+	if (/^FOO:/.test(str)) {
+		return str;
+	}
+	return str.slice(4);
+}
+
+```
+### Closure
+> "You really can't get closure unless you understand the scope that goes underneath it."
+Just thought it was a pretty funny quote.
+
+Definition: Closure is when a function "remembers" the variables outside of it, even if you pass the function somewhere.
+- The key thing is that its accessing variables in an outer scope.
+- So what happens when we pass this function elsewhere, where it enters a different scope?
+
+```javascript
+function ask(question) {
+	setTimeout(function waitASec() {
+		console.log(question); // we say that the function waitASec has closure over the question variable.
+	}, 100);
+}
+
+ask("What is a closure?");
+```
+Normally, if you think about it, once ask() is called, and then it calls setTimeout(), ask has already finished and should delete all its variables, including question. But because setTimeout still has that 100ms with waitASec in its memory and waitASec references question and has closure over the question variable, it keeps the scope and hence the variables alive.
+
+```javascript
+function ask(question) {
+	return function holdYourQuestion() {
+		console.log(question);
+	};
+}
+
+var myQuestion = ask("What is closure?");
+
+// ...
+
+myQuestion(); // What is closure?
+```
+
+## this & Prototypes
+### this - dynamic context
+A function's this references the execution context for the call, determined entirely by how the function was called.
+
+A this-aware function can thus have a different context each time its called, which makes it more flexible & reusable.
+
+```javascript
+var workshop = {
+	teacher: "Kyle",
+	ask(question) {
+		console.log(this.teacher, question);
+	},
+};
+
+workshop.ask("What is implicit binding?");
+// Kyle What is implicit binding?
+}
+```
+So it might appear that this refers to the workshop in its definition, so it will always return Kyle What is implicit binding?. But it is actually only because of the way we executed the call, and then it will look for an implicit binding. Since we did `workshop.ask`, there is an implicit binding of the ask function to the workshop object. This is more obvious in the following example, where we have a this aware function.
+
+```javascript
+function ask(question) {
+	console.log(this.teacher, question);
+}
+
+function otherClass() {
+	var myContext = {
+		teacher: "Suzy"
+	};
+	ask.call(myContext, "Why?"); // Suzy Why? 
+}
+
+otherClass();
+```
+In line 9, we introduce a new way of calling the this-aware function, `ask.call`, telling it to use `myContext` object as the this keyword.
+
+### Prototypes
+How classes in Javascript actually works under the hood! and how to use prototype add methods to the class definition.
+
+creating a this aware function turns it into a constructor. To add methods into the defintiion of the workshop class, you add it to the prototype of the the workshop.
+
+A prototype means it is an object where any instances are going to be linked to/delegated to.
+
+The new keyword is going to invoke the Workshop function, and the object that gets created is going to be linked to Workshop.prototype. Since the prototype has an ask method on it, on line 11, the deepJS instance can call .ask().
+
+It is important to see that deepJS (the object) does not have an ask method. But instead it is prototype linked to workshop.prototype. So when we do deepJS.ask, we go up the prototype chain by one level up to Workshop.prototype. Then when we invoke the ask() function on deepJS, we invoke it with the this context of the deepJS object.
+
+When we invoked workshop to create deepJS, it ran that function workshop, and when it was running the this keyword, it was pointing at teacher which was the object we gave to deepJS.
+
+So when we invoke ask(), and from line 11 to line 5 we see this.teacher, its pointing to deepJS.teacher. On line 14 -> line 5, we are saying reactJS.teacher.
+```javascript
+function Workshop(teacher) {
+	this.teacher = teacher;
+}
+
+Workshop.prototype.ask = function(question) {
+	console.log(this.teacher,question);
+}
+
+var deepJS = new Workshop("Kyle");
+var reactJS = new Workshop("Suzy");
+
+deepJS.ask("Is 'prototype' a class?");
+
+reactJS.ask("Isn't 'prototype' ugly?");
+```
+
+### Classes
+Now that we understand the prototype system and the `this` keyword, we now explore class keyword, which is layered on top of the prototype system. It gives us some syntax that we recognise as the usual class stuff with other programming languages.
+
+This was introduced with ES6.
+
+```javascript
+class Workshop {
+	constructor(teacher) {
+		this.teacher = teacher;
+	}
+	ask(question) {
+		console.log(this.teacher, question);
+	}
+}
+
+var deepJS = new Workshop("Kyle");
+var reactJS = new Workshop("Suzy");
+
+deepJS.ask("Is 'class' a class?");
+
+reactJS.ask("Is this class OK?");
+
+```
+
+## Exercise - Three Pillars of JS
+
+This is an exercise to briefly practice the three pillars of JS: Types / Coercion, Scope / Closures, and `this` / Prototypes.
+
+### Instructions
+
+The code of this exercise can be executed via Node.js or in the console tab of your browser's developer tools.
+
+1. In the `printFavoriteBooks()` function, make sure there's no accidental type conversion (ie, from number to string).
+
+	Hint: Use `String(..)` to coerce something to a string type.
+
+2. Move the `addFavoriteBook(..)` and `printFavoriteBooks()` functions into the `Bookshelf` class as methods. Modify them so they use the `this` keyword to access the `favoriteBooks` array.
+
+	Hint: `class` methods don't use the `function` keyword, just their name.
+
+3. Fill out the definition of the `loadBooks(..)` function, which should receive an instance of the `Bookshelf` class that you will pass to it.
+
+4. `loadBooks(..)` should call the provided `fakeAjax(..)`, using `BOOK_API` as the URL and an inline function expression as the callback.
+
+5. The callback will be passed an array of book names. Loop through this array, passing each book name to the `addFavoriteBook(..)` method of the `Bookshelf` instance passed to `loadBooks(..)`. Then call the `printFavoriteBooks()` method.
+
+6. Create an instance of `Bookshelf` class, and pass it as an argument to `loadBooks(..)`.
+
+	Hint: Class instantiation: `new Whatever()`.
+
+```javascript
+class Bookshelf {
+	constructor() {
+		this.favoriteBooks = [];
+	}
+
+	// TODO: define methods `addFavoriteBook(..)`
+	// and `printFavoriteBooks()`
+	addFavoriteBook(bookName) {
+		if (!bookName.includes("Great")) {
+			this.favoriteBooks.push(bookName);
+		}
+	}
+
+	printFavoriteBooks() {
+		console.log(`Favorite Books: ${String(this.favoriteBooks.length)}`);
+		for (let bookName of this.favoriteBooks) {
+			console.log(bookName);
+		}
+	}
+}
+
+function loadBooks(bookShelf) {
+	// TODO: call fakeAjax( .. );
+	fakeAjax(BOOK_API, (arr) => {
+		for (const bookName of arr) {
+			bookShelf.addFavoriteBook(bookName);
+		}
+		bookShelf.printFavoriteBooks();
+	});
+}
+
+var BOOK_API = "https://some.url/api";
+
+
+// ***********************
+
+// NOTE: don't modify this function at all
+function fakeAjax(url,cb) {
+	setTimeout(function fakeLoadingDelay(){
+		cb([
+			"A Song of Ice and Fire",
+			"The Great Gatsby",
+			"Crime & Punishment",
+			"Great Expectations",
+			"You Don't Know JS"
+		]);
+	},500);
+}
+var myBooks = new Bookshelf();
+loadBooks(myBooks);
+
+```
+
+
 ## Basic Data Structures
 I think one way to learn the syntax for a programming language is to get familiar with the data structures you can use, and put em to test in some leetcode questions :). 
 
