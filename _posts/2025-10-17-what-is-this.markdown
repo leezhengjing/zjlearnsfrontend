@@ -28,7 +28,30 @@ math: true
 function Person(name) {
   this.name = name;
 }
+
+const me = new Person("Zheng Jing");
+console.log(me.name); // "Zheng Jing"
 ```
+
+### Scenario 2
+
+```javascript
+class Person(name) {
+    constructor(name) {
+        this.name = name;
+    }
+
+    printThis() {
+        console.log(this):
+    }
+}
+
+const me = new Person("Zheng Jing");
+me.printThis(); // { name: "Zheng Jing }
+
+```
+
+### Within a regular function call
 
 ```javascript
 function printThis() {
@@ -38,7 +61,7 @@ function printThis() {
 printThis(); // In non-strict mode: window object. In strict mode: undefined
 ```
 
-### Scenario 2
+### Within a method call
 
 ```javascript
 const obj = {
@@ -49,4 +72,7 @@ const obj = {
 };
 
 obj.printThis(); // { name: "Zheng Jing", printThis: f }
+
+const printThisStandalone = objj.printThis;
+printThisStandalone(); // window object (non-strict mode) or undefined (strict mode)
 ```

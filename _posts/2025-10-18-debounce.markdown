@@ -1,0 +1,101 @@
+---
+layout: post
+title: "Implement debounce"
+date: 2025-10-17 23:49:00 +0800
+categories: javascript, typescript, coding
+math: true
+---
+
+# What is debouncing?
+
+- A technique used to control the number of times a function is executed over a timespan.
+- If a debounce time of X milliseconds is set, it means the function must wait until X milliseconds has elapsed since the last debounced call before it can be called again.
+
+## Interview Question: Implement a `debounce` function
+
+- Criteria: Accepts a callback function and a `wait` duration. Calling `debounce()` returns a function which has debounced invocations of the callback function following the behavior described above.
+
+### Example:
+
+```javascript
+let x = 1;
+function double() {
+  x = x * 2;
+}
+
+const debouncedDouble = debounce(double, 100);
+
+debouncedDouble(); // t = 0, x = 1
+// t = 50, x = 1
+// t = 100, x = 2, after 100 ms, double is invoked and x is updated to 2
+```
+
+```javascript
+let x = 1;
+function double() {
+  x = x * 2;
+}
+
+const debouncedDouble = debounce(double, 100);
+
+debouncedDouble(); // t = 0, x = 1
+// t = 50, x = 1
+debouncedDouble(); // t = 50, x= 1 the timeout is reset to 0 again.
+// t = 100, x = 1,
+// t = 150, x = 2, after 100 ms, double is invoked and x is updated to 2
+```
+
+### Solution
+
+```javascript
+export default function debounce(func, wait = 0) {
+  let timeoutID;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timeoutID);
+
+    timeoutID = setTimeout(function () {
+      timeoutID = null;
+      func.apply(context, args); // func.call(context, ...args);
+    }, wait);
+
+    // Another method is to make use of arrow functions, since they have lexical
+    // scope for `this`. This means their `this` is bound to the context in which
+    // the function is created, not the way the function is called.
+
+    // timeoutID = setTimeout(() => {
+    //   timeoutID = null;
+    //   func.apply(this, args);
+    // }, wait);
+  };
+}
+```
+
+```typescript
+export default function debounce(func: Function, wait: number): Function {
+  let timeoutID: ReturnType<typeof setTimeout> | null = null;
+
+  return function (this: any, ...args: any[]) {
+    const context = this;
+    clearTimeout(timeoutID ?? undefined);
+
+    timeoutID = setTimeout(function () {
+      timeoutID = null;
+      func.apply(context, args);
+    }, wait);
+  };
+}
+```
+
+## Write-up
+
+The main crutch of implementing the debounce function is the `this` context of
+the function we are trying to debounce. We do not just have to forward the arguments,
+but the `this` context as well. As such, while it might be tempting to
+just do func(..args), we will lose the `this` context since it becomes a regular
+function call, and `this` will be either window or undefined.
+
+In order to pass the original `this` context of the original function, we need
+to use Function.prototype.apply() or Function.prototype.call().
+
+## Follow up: Extend the debounce function with `cancel()` to cancel delayed invocations and `flush()` methods to immediately invoke them.
