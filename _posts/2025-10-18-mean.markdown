@@ -1,0 +1,56 @@
+---
+layout: post
+title: "Implement mean"
+date: 2025-10-18 18:43:00 +0800
+categories: javascript, typescript, coding
+math: true
+---
+
+# Question
+
+Implement a function mean(array) that returns the mean of the values inside `array`.
+
+## Solution
+
+```typescript
+export default function mean(array: number[]): number {
+  let res = 0;
+
+  for (let i = 0; i < array.length; i++) {
+    res += array[i];
+  }
+  // for (const num of array) {
+  //   res += num;
+  // }
+
+  // oneliner: return array.reduce((a, b) => a + b, 0) / array.length;
+
+  return res / array.length;
+}
+```
+
+## Write-up
+
+Simple question, just whether you know about the `Array.prototype.reduce` function
+you can use to perform the summation.
+
+The `reduce()` function takes in a callback and an initial value. It is optional,
+but good to include just so you don't run into errors when handling an empty array,
+since the behavior is that if no initial value is provided, it will use the first
+element as the initial value and iterate from the second element, and that's a
+problem when you have an empty array.
+
+The next thing to consider is edge cases. If an array is empty, can we divide by
+array.length? The answer is yes. In Javascript, division by zero results in `Infinity`
+if the numerator is non-zero, and `NaN` if the numerator is zero, which is what
+is required. First scenario can't occur, so division by zero is okay, no need to
+specially handle this.
+
+Now what about integer overflow? What if the sum of numbers is too big? Javascript
+handles overflows as such: values larger than `Number.MAX_VALUE` are represented as
+`Infinity` and will lose their actual value.
+
+So in order to avoid this scenario, we can split the array into equal chunks and
+calculate the average for each chunk. The final average can be determined by taking
+the average of each chunk's average. If we can't divide the chunks equally, we can
+still find the weighted average depending on the length of the chunk.
