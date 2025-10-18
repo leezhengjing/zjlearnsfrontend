@@ -32,7 +32,7 @@ export default function mean(array: number[]): number {
 ## Write-up
 
 Simple question, just whether you know about the `Array.prototype.reduce` function
-you can use to perform the summation.
+you can use to simplify the summation.
 
 The `reduce()` function takes in a callback and an initial value. It is optional,
 but good to include just so you don't run into errors when handling an empty array,
@@ -43,8 +43,9 @@ problem when you have an empty array.
 The next thing to consider is edge cases. If an array is empty, can we divide by
 array.length? The answer is yes. In Javascript, division by zero results in `Infinity`
 if the numerator is non-zero, and `NaN` if the numerator is zero, which is what
-is required. First scenario can't occur, so division by zero is okay, no need to
-specially handle this.
+is required (return type of `number` required, and `NaN` is type `number`.
+First scenario can't occur, so division by zero is okay, no need to specially
+handle this.
 
 Now what about integer overflow? What if the sum of numbers is too big? Javascript
 handles overflows as such: values larger than `Number.MAX_VALUE` are represented as
