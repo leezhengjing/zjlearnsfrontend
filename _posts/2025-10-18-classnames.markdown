@@ -8,8 +8,9 @@ math: true
 
 # Question
 
-A common functionality which you might have seen in `clsx` or `tailwindMerge`,
-but basically a utility function to combine CSS class names together into one string.
+A common functionality which you might have seen when importing `clsx` or `classnames`,
+in your react projects, but basically a utility function to combine CSS class names together
+into one string.
 
 Implement the `classnames` function that does this from scratch.
 
