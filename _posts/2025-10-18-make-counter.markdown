@@ -16,13 +16,22 @@ previous returned value.
 ## Solution
 
 ```javascript
-export default funciton makeCounter(initialValue = 0) {
+export default function makeCounter(initialValue = 0) {
   let count = initialValue;
   return () => {
     return count++;
-  }
+  };
 
   // oneliner: return () => initialValue++;
+}
+```
+
+```typescript
+export default function makeCounter(initialValue: number = 0): () => number {
+  let count: number = initialValue;
+  return () => {
+    return count++;
+  };
 }
 ```
 
