@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Implement flatten"
+title: "Implement curry"
 date: 2025-10-28 00:00:00 +0800
 categories: javascript, typescript, coding
 math: true
