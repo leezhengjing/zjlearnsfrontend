@@ -1,0 +1,62 @@
+---
+layout: post
+title: "Implement flatten"
+date: 2025-10-28 00:00:00 +0800
+categories: javascript, typescript, coding
+math: true
+---
+
+# Question
+
+Implement a curry function
+
+## Solution
+
+```typescript
+export default function curry(func: Function): Function {
+  return function curried(this: any, ...args: Array<any>) {
+    if (args.length >= func.length) {
+      return func.apply(this, args);
+    }
+
+    return (arg: any) =>
+      arg === undefined
+        ? curried.apply(this, args)
+        : curried.apply(this, [...args, arg]);
+  };
+}
+```
+
+```typescript
+export default function curry(func: Function): Function {
+  return function curried(this: any, ...args: Array<any>) {
+    if (args.length >= func.length) {
+      return func.apply(this, args);
+    }
+
+    return curried.bind(this, ...args);
+  };
+}
+```
+
+## Write-up
+
+### Clarifying Question
+
+- What value types will curry expect?
+- Should the function expect value of different types?
+
+### Terminologies
+
+- _Arity_: The number of arguments or operands taken by a function. Retrieved by fun.length;
+- _Closure_: A closure is the combination of a function bundled together with references to its lexical environment (surrounding state);
+- _this_: A reference to the context in which a function is called.
+
+The curried function will stop accepting arguments after the number of arguments passed into the curried function equals
+the arity of the original function.
+
+The idea is that each time the curried function is called, we compare the number so far with the arity of the original
+function. The terminating condition is reached in the mentioned scenario.
+
+If the terminating condition is not reached, we return a function that accepts more arguments and invokes the curried
+function with the new arguments.
