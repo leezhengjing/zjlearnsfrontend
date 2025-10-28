@@ -1,0 +1,58 @@
+---
+layout: post
+title: "Explain the concept of hoisting in javascript"
+date: 2025-10-20 00:00:00 +0800
+categories: javascript, typescript, coding
+math: true
+---
+
+# Question
+
+TL;DR
+Hoisting is a JavaScript mechanism where variable and function declarations are moved ("hoisted") to the top of their containing scope during the compile phase.
+
+Variable declarations (var): Declarations are hoisted, but not initializations. The value of the variable is undefined if accessed before initialization.
+Variable declarations (let and const): Declarations are hoisted, but not initialized. Accessing them results in ReferenceError until the actual declaration is encountered.
+Function expressions (var): Declarations are hoisted, but not initializations. The value of the variable is undefined if accessed before initialization.
+Function declarations (function): Both declaration and definition are fully hoisted.
+Class declarations (class): Declarations are hoisted, but not initialized. Accessing them results in ReferenceError until the actual declaration is encountered.
+Import declarations (import): Declarations are hoisted, and side effects of importing the module are executed before the rest of the code.
+The following behavior summarizes the result of accessing the variables before they are declared.
+
+Declaration Accessing before declaration
+var foo undefined
+let foo ReferenceError
+const foo ReferenceError
+class Foo ReferenceError
+var foo = function() { ... } undefined
+function foo() { ... } Normal
+import Normal
+Hoisting
+Hoisting is a term used to explain the behavior of variable declarations in JavaScript code.
+
+Variables declared or initialized with the var keyword will have their declaration "moved" up to the top of their containing scope during compilation, which we refer to as hoisting.
+
+Only the declaration is hoisted, the initialization/assignment (if there is one), will stay where it is. Note that the declaration is not actually moved – the JavaScript engine parses the declarations during compilation and becomes aware of variables and their scopes, but it is easier to understand this behavior by visualizing the declarations as being "hoisted" to the top of their scope.
+
+Let's explain with a few code samples. Note that the code for these examples should be executed within a module scope instead of being entered line by line into a REPL like the browser console.
+
+Hoisting of variables declared using var
+Hoisting is seen in action here as even though foo is declared and initialized after the first console.log(), the first console.log() prints the value of foo as undefined.
+
+console.log(foo); // undefined
+var foo = 1;
+console.log(foo); // 1
+
+Run
+You can visualize the code as:
+
+var foo;
+console.log(foo); // undefined
+foo = 1;
+console.log(foo); // 1
+
+Run
+Hoisting of variables declared using let, const, and class
+Variables declared via let, const, and class are hoisted as well. However, unlike var and function, they are not initialized and accessing them before the declaration will result in a ReferenceError exception. The variable is in a "temporal dead zone" from the start of the block until the declaration is processed.
+
+y; // Ref

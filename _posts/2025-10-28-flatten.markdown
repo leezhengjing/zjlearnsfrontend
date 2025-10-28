@@ -1,0 +1,97 @@
+---
+layout: post
+title: "Implement flatten"
+date: 2025-10-28 00:00:00 +0800
+categories: javascript, typescript, coding
+math: true
+---
+
+# Question
+
+Implement flatten
+
+## Solution
+
+```typescript
+type ArrayValue = any | Array<AnyValue>;
+
+export default function flatten(value: Array<ArrayValue>): Array<any> {
+  const res = [];
+  const copy = value.slice();
+
+  while (copy.length > 0) {
+    const curr = copy.shift();
+    if (Array.isArray(curr)) {
+      copy.unshift(...curr);
+    } else {
+      res.push(curr);
+    }
+  }
+
+  return res;
+}
+```
+
+```typescript
+
+type ArrayValue = any | Array<AnyValue>;
+
+export default function flatten(value: Array<ArrayValue>): Array<any> {
+  while value.some(Array.isArray) {
+    value = [].concat(...value);
+  }
+  return value;
+}
+
+```
+
+```typescript
+type ArrayValue = any | Array<ArrayValue>;
+
+export default function flatten(value: Array<ArrayValue>): Array<any> {
+  return value.reduce(
+    (acc, curr) => acc.concat(Array.isArray(curr) ? flatten(...curr) : curr),
+    [],
+  );
+}
+```
+
+```typescript
+type ArrayValue = any | Array<ArrayValue>;
+
+export default function flatten(value: Array<ArrayValue>): Array<any> {
+  for (let i = 0; i < value.length; ) {
+    if (Array.isArray(value[i])) {
+      value.splice(i, 1, ...value[i]);
+    }
+  }
+}
+```
+
+```typescript
+type ArrayValue = any | Array<ArrayValue>;
+
+export default function flatten(value: Array<ArrayValue>): Array<any> {
+  return Array.isArray(value) ? value.flatMap((item) => flatten(item)) : value;
+}
+```
+
+```typescript
+export default function flatten(value: Array<any>): Generator<any> {
+  for (const item of value) {
+    if (Array.isArray(item)) {
+      yield * flatten(item);
+    } else {
+      yield item;
+    }
+  }
+}
+```
+
+```typescript
+type ArrayValue = any | Array<ArrayValue>;
+
+export default function flatten(value: Array<ArrayValue>): Array<any> {
+  return Array.isArray(value) ? value.flat(Infinity) : value;
+}
+```
